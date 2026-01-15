@@ -2,7 +2,7 @@
     "name": "clearbomb",
     "displayName": "Minesweeper Pro",
     "description": "A logic-based Minesweeper game for VS Code",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "publisher": "Chenguang",
     "engines": {
         "vscode": "^1.60.0"

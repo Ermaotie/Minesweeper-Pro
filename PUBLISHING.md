@@ -40,5 +40,18 @@ This will generate `clearbomb-1.0.0.vsix`. You can install this in VS Code via "
     vsce publish
     ```
 
+## Updating your Extension
+
+To release a new version (e.g., after changing the README):
+
+1.  **Bump Version**: Update the `"version"` field in `package.json`.
+    -   Example: Change `"1.0.0"` to `"1.0.1"`.
+    -   Or use: `npm version patch`
+2.  **Publish**:
+    ```bash
+    vsce publish
+    ```
+    This will automatically package and upload the new version to the Marketplace.
+
 ## Automated Publishing (GitHub Actions)
 If you host this on GitHub, you can set up actions to auto-publish on tag creation.
