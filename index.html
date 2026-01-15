@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="game-header">
+            <h1>Minesweeper</h1>
+            <div class="controls">
+                <select id="difficulty-select">
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+                <button id="new-game-btn">New Game</button>
+            </div>
+            <div class="stats">
+                <div class="stat-box">
+                    <span class="stat-label">Mines</span>
+                    <span id="mine-count" class="stat-value">000</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Time</span>
+                    <span id="timer" class="stat-value">000</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="game-board-container">
+            <div id="game-board" class="game-board"></div>
+        </main>
+
+        <div id="game-over-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2 id="modal-title">Game Over</h2>
+                <p id="modal-message"></p>
+                <button id="modal-restart-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

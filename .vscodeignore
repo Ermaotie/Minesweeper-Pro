@@ -1,0 +1,14 @@
+.vscode/**
+.vscode-test/**
+test/**
+src/**
+.gitignore
+.git/**
+node_modules/**
+out/**
+task.md
+implementation_plan.md
+walkthrough.md
+vercel.json
+PUBLISHING.md
+test.html

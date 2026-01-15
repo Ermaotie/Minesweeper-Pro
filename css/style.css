@@ -1,0 +1,269 @@
+:root {
+    --bg-color: #f0f2f5;
+    --board-bg: #ffffff;
+    --cell-bg: #e4e6eb;
+    --cell-hover: #d8dadf;
+    --cell-revealed: #ffffff;
+    --primary-color: #1877f2;
+    --text-color: #050505;
+    --mine-color: #e41e3f;
+    --flag-color: #f7b928;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --radius: 8px;
+    --font-family: 'Inter', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #18191a;
+        --board-bg: #242526;
+        --cell-bg: #3a3b3c;
+        --cell-hover: #4e4f50;
+        --cell-revealed: #242526;
+        --primary-color: #4599ff;
+        /* Brighter blue */
+        --text-color: #e4e6eb;
+        --mine-color: #ff4d4d;
+        /* Brighter red */
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    /* Prevent text selection during play */
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.app-container {
+    background-color: var(--board-bg);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 100%;
+    width: fit-content;
+}
+
+.game-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+}
+
+select,
+button {
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    border: 1px solid #ccc;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.stats {
+    display: flex;
+    gap: 24px;
+}
+
+.stat-box {
+    background-color: var(--bg-color);
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #65676b;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.game-board-container {
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.game-board {
+    display: grid;
+    gap: 2px;
+    background-color: #ccc;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    background-color: var(--cell-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.1s;
+}
+
+.cell:hover {
+    filter: brightness(0.95);
+}
+
+.cell.revealed {
+    background-color: var(--cell-revealed);
+    cursor: default;
+}
+
+.cell.mine {
+    background-color: var(--mine-color);
+    color: white;
+}
+
+.cell.flagged {
+    color: var(--flag-color);
+}
+
+/* Number colors */
+.cell[data-value="1"] {
+    color: #1877f2;
+}
+
+.cell[data-value="2"] {
+    color: #42b72a;
+}
+
+.cell[data-value="3"] {
+    color: #fa3e3e;
+}
+
+.cell[data-value="4"] {
+    color: #000080;
+}
+
+.cell[data-value="5"] {
+    color: #800000;
+}
+
+.cell[data-value="6"] {
+    color: #008080;
+}
+
+.cell[data-value="7"] {
+    color: #000000;
+}
+
+.cell[data-value="8"] {
+    color: #808080;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 32px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+#modal-title {
+    margin-bottom: 12px;
+}
+
+#modal-message {
+    margin-bottom: 24px;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .cell {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+
+    .app-container {
+        padding: 12px;
+        width: 100%;
+    }
+}

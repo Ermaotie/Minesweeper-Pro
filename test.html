@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Minesweeper Tests</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        .pass {
+            color: green;
+        }
+
+        .fail {
+            color: red;
+        }
+    </style>
+    <script src="js/app.js"></script>
+</head>
+
+<body>
+    <h1>Minesweeper Solver Tests</h1>
+    <div id="results">Running tests...</div>
+    <script>
+        // Uses global Game and checkSolvability from app.js
+
+        const results = document.getElementById('results');
+        const log = (msg, type = 'info') => {
+            const div = document.createElement('div');
+            div.textContent = msg;
+            if (type) div.className = type;
+            results.appendChild(div);
+        };
+
+        async function runTests() {
+            results.innerHTML = '';
+            let passed = 0;
+            const total = 10;
+
+            log(`Starting ${total} board generation tests...`);
+
+            for (let i = 0; i < total; i++) {
+                // Test Intermediate difficulty
+                // Since Game is now global, we can just instantiate it
+                const game = new Game(16, 16, 40, () => { });
+
+                const startR = 8;
+                const startC = 8;
+
+                game.grid = game.createEmptyGrid(); // Reset
+                game.generateBoard(startR, startC);
+
+                const isSolvable = checkSolvability(game.grid, startR, startC);
+
+                if (isSolvable) {
+                    passed++;
+                    log(`Test ${i + 1}: Solvable`, 'pass');
+                } else {
+                    log(`Test ${i + 1}: FAILED - Unsolvable board generated`, 'fail');
+                }
+
+                // Yield to UI
+                await new Promise(r => setTimeout(r, 10));
+            }
+
+            log(`Tests Completed: ${passed}/${total} passed.`, passed === total ? 'pass' : 'fail');
+        }
+
+        runTests();
+    </script>
+</body>
+
+</html>

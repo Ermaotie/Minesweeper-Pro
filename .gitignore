@@ -1,0 +1,21 @@
+# Dependency directories
+node_modules/
+.vscode-test/
+
+# Build output
+out/
+dist/
+
+# Extension packages
+*.vsix
+
+# Logs
+*.log
+npm-debug.log
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
