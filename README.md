@@ -4,8 +4,7 @@ Play the classic **Minesweeper** game directly inside Visual Studio Code!
 
 This extension brings a modern, beautiful, and logic-focused Minesweeper experience to your editor, perfect for taking a quick break from coding.
 
-![Screenshot](https://raw.githubusercontent.com/Ermaotie/Minesweeper-Pro/main/screenshot.png)
-*(Note: Please add a `screenshot.png` to your repository root for the image to show up in the Marketplace)*
+![Screenshot](./screenshot.png)
 
 ## Features
 
