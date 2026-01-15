@@ -4,7 +4,7 @@
     "description": "A logic-based Minesweeper game for VS Code",
     "version": "1.0.3",
     "publisher": "Chenguang",
-    "icon": "./screenshot.png",
+    "icon": "icon.ico",
     "engines": {
         "vscode": "^1.60.0"
     },
