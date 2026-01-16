@@ -12,7 +12,7 @@ class Renderer {
         this.modalRestartBtn = document.getElementById('modal-restart-btn');
     }
 
-    initBoard(rows, cols, onCellClick, onCellRightClick) {
+    initBoard(rows, cols, onCellClick, onCellRightClick, onCellDblClick) {
         this.cols = cols;
         this.boardElement.style.gridTemplateColumns = `repeat(${cols}, 30px)`;
         this.boardElement.innerHTML = '';
@@ -30,6 +30,7 @@ class Renderer {
                     e.preventDefault();
                     onCellRightClick(r, c);
                 });
+                cell.addEventListener('dblclick', () => onCellDblClick(r, c));
 
                 this.boardElement.appendChild(cell);
             }
@@ -131,7 +132,9 @@ function checkSolvability(grid, startR, startC) {
     let changed = true;
     while (changed) {
         changed = false;
+        let basicMoveFound = false;
 
+        // 1. Basic Neighbors Check
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
                 if (state[r][c] === 1) { // Revealed
@@ -147,6 +150,7 @@ function checkSolvability(grid, startR, startC) {
                         hidden.forEach(([nr, nc]) => {
                             state[nr][nc] = 1; // Reveal
                             changed = true;
+                            basicMoveFound = true;
                         });
                     }
 
@@ -155,10 +159,77 @@ function checkSolvability(grid, startR, startC) {
                         hidden.forEach(([nr, nc]) => {
                             state[nr][nc] = 2; // Flag
                             changed = true;
+                            basicMoveFound = true;
                         });
                     }
                 }
             }
+        }
+
+        if (basicMoveFound) continue; // Always exhaust basic logic first
+
+        // 2. Set Analysis (Advanced)
+        // Gather active numbers
+        const active = [];
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (state[r][c] === 1) {
+                    const cell = grid[r][c];
+                    const neighbors = getNeighbors(r, c);
+                    const hidden = neighbors.filter(([nr, nc]) => state[nr][nc] === 0);
+                    const flagged = neighbors.filter(([nr, nc]) => state[nr][nc] === 2);
+
+                    if (hidden.length > 0) {
+                        active.push({
+                            r, c,
+                            val: cell.neighborCount,
+                            flagged: flagged.length,
+                            hidden: hidden,
+                            minesNeeded: cell.neighborCount - flagged.length
+                        });
+                    }
+                }
+            }
+        }
+
+        for (let i = 0; i < active.length; i++) {
+            for (let j = 0; j < active.length; j++) {
+                if (i === j) continue;
+                const A = active[i];
+                const B = active[j];
+
+                // Only compare if they are neighbors (heuristic optimization)
+                // Actually, strict subset logic doesn't require them to be neighbors, 
+                // but usually they share neighbors.
+                // Distance check: |rA - rB| <= 2 && |cA - cB| <= 2 to limit complexity
+                if (Math.abs(A.r - B.r) > 2 || Math.abs(A.c - B.c) > 2) continue;
+
+                if (isSubset(A.hidden, B.hidden)) {
+                    const diff = getDifference(B.hidden, A.hidden);
+                    if (diff.length === 0) continue;
+
+                    const minesDiff = B.minesNeeded - A.minesNeeded;
+
+                    if (minesDiff === 0) {
+                        // All in diff are safe
+                        diff.forEach(([dr, dc]) => {
+                            if (state[dr][dc] === 0) {
+                                state[dr][dc] = 1; // Reveal
+                                changed = true;
+                            }
+                        });
+                    } else if (minesDiff === diff.length) {
+                        // All in diff are mines
+                        diff.forEach(([dr, dc]) => {
+                            if (state[dr][dc] === 0) {
+                                state[dr][dc] = 2; // Flag
+                                changed = true;
+                            }
+                        });
+                    }
+                }
+            }
+            if (changed) break; // Restart loop to propogate basic moves
         }
     }
 
@@ -172,6 +243,21 @@ function checkSolvability(grid, startR, startC) {
     }
 
     return true;
+}
+
+// Helper for Set Analysis
+function isSubset(setA, setB) {
+    // Check if setA is a subset of setB
+    // sets are arrays of strings "r,c" or objects. Strings are easier for Set interaction
+    // But our arrays are coordinates [r, c].
+    // Let's use string keys for comparison
+    const keysB = new Set(setB.map(([r, c]) => `${r},${c}`));
+    return setA.every(([r, c]) => keysB.has(`${r},${c}`));
+}
+
+function getDifference(setBig, setSmall) {
+    const keysSmall = new Set(setSmall.map(([r, c]) => `${r},${c}`));
+    return setBig.filter(([r, c]) => !keysSmall.has(`${r},${c}`));
 }
 
 /**
@@ -222,7 +308,7 @@ class Game {
 
     generateBoard(safeR, safeC) {
         let attempts = 0;
-        const maxAttempts = 50;
+        const maxAttempts = 1000;
 
         while (attempts < maxAttempts) {
             // Reset grid
@@ -306,6 +392,52 @@ class Game {
 
         this.onUpdate({ type: 'cell', r, c, data: cell });
         this.onUpdate({ type: 'stats', mines: this.minesLeft, time: this.timeElapsed });
+    }
+
+    handleDblClick(r, c) {
+        if (this.state !== 'playing') return;
+        const cell = this.grid[r][c];
+        if (!cell.isOpen || cell.neighborCount === 0) return;
+
+        let flags = 0;
+        let hiddenNeighbors = [];
+
+        // Scan neighbors
+        for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+                if (i === 0 && j === 0) continue;
+                const nr = r + i, nc = c + j;
+                if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols) {
+                    const n = this.grid[nr][nc];
+                    if (n.isFlagged) flags++;
+                    else if (!n.isOpen) hiddenNeighbors.push({ r: nr, c: nc });
+                }
+            }
+        }
+
+        if (flags === cell.neighborCount) {
+            let hitMine = false;
+            hiddenNeighbors.forEach(pos => {
+                const target = this.grid[pos.r][pos.c];
+                if (target.isMine) {
+                    hitMine = true;
+                    // Ensure we show it's a mine by opening it, gameOver handles the rest validation usually
+                    // But we need to make sure we don't just reveal it as safe.
+                    // Actually handleLeftClick logic for mine handles Game Over.
+                    // We can reuse that logic or manual trigger.
+                    // For distinctness, let's manual trigger.
+                    target.isOpen = true; // Force open to show bomb
+                } else {
+                    this.revealCell(pos.r, pos.c);
+                }
+            });
+
+            if (hitMine) {
+                this.gameOver(false);
+            } else {
+                this.checkWin();
+            }
+        }
     }
 
     revealCell(r, c) {
@@ -423,7 +555,8 @@ class App {
                     update.rows,
                     update.cols,
                     (r, c) => this.currentGame.handleLeftClick(r, c),
-                    (r, c) => this.currentGame.handleRightClick(r, c)
+                    (r, c) => this.currentGame.handleRightClick(r, c),
+                    (r, c) => this.currentGame.handleDblClick(r, c)
                 );
                 break;
             case 'cell':
@@ -442,5 +575,5 @@ class App {
 
 // Start the app
 window.addEventListener('DOMContentLoaded', () => {
-    new App();
+    window.app = new App();
 });
