@@ -18,6 +18,7 @@ This extension brings a modern, beautiful, and logic-focused Minesweeper experie
 - **🖱️ Classic Controls**:
     - **Left Click**: Reveal cell
     - **Right Click**: Flag mine
+    - **Double Click (Chording)**: Reveal all neighbors of a numbered cell (if flags match the number)
 
 ## How to Use
 
@@ -52,6 +53,7 @@ If you find any bugs or have feature requests, please file an issue on [GitHub](
 - **🖱️ 经典操作**:
     - **左键**: 扫雷
     - **右键**: 插旗
+    - **双击 (Chording)**: 当周围旗帜数等于数字时，双击可自动打开其余格子
 
 ## 如何使用
 
